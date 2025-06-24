@@ -169,13 +169,6 @@ const HoverButtons = ({
     );
   }
 
-  const onEdit = () => {
-    if (isEditing) {
-      return enterEdit(true);
-    }
-    enterEdit();
-  };
-
   const handleCopy = () => copyToClipboard(setIsCopied);
 
   return (
@@ -209,34 +202,6 @@ const HoverButtons = ({
         isLast={isLast}
         className={`ml-0 flex items-center gap-1.5 text-xs ${isSubmitting && isCreatedByUser ? 'md:opacity-0 md:group-hover:opacity-100' : ''}`}
       />
-
-      {/* Edit Button */}
-      {/* {isEditableEndpoint && (
-        <HoverButton
-          onClick={onEdit}
-          title={localize('com_ui_edit')}
-          icon={<EditIcon size="19" />}
-          isActive={isEditing}
-          isVisible={!hideEditButton}
-          isDisabled={hideEditButton}
-          isLast={isLast}
-          className={isCreatedByUser ? '' : 'active'}
-        />
-      )} */}
-
-      {/* Fork Button */}
-      {/* <Fork
-        messageId={message.messageId}
-        conversationId={conversation.conversationId}
-        forkingSupported={forkingSupported}
-        latestMessageId={latestMessage?.messageId}
-        isLast={isLast}
-      /> */}
-
-      {/* Feedback Buttons */}
-      {/* {!isCreatedByUser && (
-        <Feedback handleFeedback={handleFeedback} feedback={message.feedback} isLast={isLast} />
-      )} */}
 
       {/* Regenerate Button */}
       {regenerateEnabled && (

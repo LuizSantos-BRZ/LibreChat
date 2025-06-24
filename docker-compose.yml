@@ -4,6 +4,7 @@
 services:
   api:
     container_name: LibreChat
+    build: .
     ports:
       - "${PORT}:${PORT}"
     depends_on:

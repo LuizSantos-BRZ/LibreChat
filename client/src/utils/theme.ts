@@ -28,10 +28,11 @@ export const getInitialTheme = () => {
       return storedPrefs;
     }
 
-    const userMedia = window.matchMedia('(prefers-color-scheme: dark)');
-    if (userMedia.matches) {
-      return 'dark';
-    }
+    // Commented out system preference check to always default to light
+    // const userMedia = window.matchMedia('(prefers-color-scheme: dark)');
+    // if (userMedia.matches) {
+    //   return 'dark';
+    // }
   }
 
   return 'light'; // light theme as the default;
