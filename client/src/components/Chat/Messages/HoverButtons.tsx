@@ -211,7 +211,7 @@ const HoverButtons = ({
       />
 
       {/* Edit Button */}
-      {isEditableEndpoint && (
+      {/* {isEditableEndpoint && (
         <HoverButton
           onClick={onEdit}
           title={localize('com_ui_edit')}
@@ -222,21 +222,21 @@ const HoverButtons = ({
           isLast={isLast}
           className={isCreatedByUser ? '' : 'active'}
         />
-      )}
+      )} */}
 
       {/* Fork Button */}
-      <Fork
+      {/* <Fork
         messageId={message.messageId}
         conversationId={conversation.conversationId}
         forkingSupported={forkingSupported}
         latestMessageId={latestMessage?.messageId}
         isLast={isLast}
-      />
+      /> */}
 
       {/* Feedback Buttons */}
-      {!isCreatedByUser && (
+      {/* {!isCreatedByUser && (
         <Feedback handleFeedback={handleFeedback} feedback={message.feedback} isLast={isLast} />
-      )}
+      )} */}
 
       {/* Regenerate Button */}
       {regenerateEnabled && (
