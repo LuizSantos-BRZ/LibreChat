@@ -4,16 +4,18 @@ import type {
   TEndpointsConfig,
   TPreset,
   TAssistantsMap,
+  TAgentsMap,
 } from 'librechat-data-provider';
 import ConvoIconURL from '~/components/Endpoints/ConvoIconURL';
 import MinimalIcon from '~/components/Endpoints/MinimalIcon';
-import { getEndpointField, getIconEndpoint } from '~/utils';
+import { getEndpointField, getIconEndpoint, getEntity } from '~/utils';
 
 export default function EndpointIcon({
   conversation,
   endpointsConfig,
   className = 'mr-0',
   assistantMap,
+  agentsMap,
   context,
 }: {
   conversation: TConversation | TPreset | null;
@@ -21,6 +23,7 @@ export default function EndpointIcon({
   containerClassName?: string;
   context?: 'message' | 'nav' | 'landing' | 'menu-item';
   assistantMap?: TAssistantsMap;
+  agentsMap?: TAgentsMap;
   className?: string;
   size?: number;
 }) {
@@ -31,13 +34,21 @@ export default function EndpointIcon({
   const endpointType = getEndpointField(endpointsConfig, endpoint, 'type');
   const endpointIconURL = getEndpointField(endpointsConfig, endpoint, 'iconURL');
 
-  const assistant = isAssistantsEndpoint(endpoint)
-    ? assistantMap?.[endpoint]?.[conversation?.assistant_id ?? '']
-    : null;
-  const assistantAvatar = (assistant && (assistant.metadata?.avatar as string)) || '';
-  const assistantName = assistant && (assistant.name ?? '');
+  // Get entity (agent or assistant) information
+  const { entity, isAgent } = getEntity({
+    endpoint,
+    agentsMap,
+    assistantMap,
+    agent_id: conversation?.agent_id,
+    assistant_id: conversation?.assistant_id,
+  });
 
-  const iconURL = assistantAvatar || convoIconURL;
+  const name = entity?.name ?? '';
+  const avatar = isAgent
+    ? (entity as any)?.avatar?.filepath
+    : ((entity as any)?.metadata?.avatar as string);
+
+  const iconURL = avatar || convoIconURL;
 
   if (iconURL && (iconURL.includes('http') || iconURL.startsWith('/images/'))) {
     return (
@@ -46,8 +57,10 @@ export default function EndpointIcon({
         modelLabel={conversation?.chatGptLabel ?? conversation?.modelLabel ?? ''}
         context={context}
         endpointIconURL={endpointIconURL}
-        assistantAvatar={assistantAvatar}
-        assistantName={assistantName ?? ''}
+        assistantAvatar={isAgent ? '' : avatar}
+        assistantName={isAgent ? '' : name}
+        agentAvatar={isAgent ? avatar : ''}
+        agentName={isAgent ? name : ''}
       />
     );
   } else {

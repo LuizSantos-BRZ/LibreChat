@@ -1,7 +1,8 @@
 import React, { useContext, useCallback } from 'react';
 import Cookies from 'js-cookie';
 import { useRecoilState } from 'recoil';
-import { ThemeContext, useLocalize } from '~/hooks';
+import { SystemRoles } from 'librechat-data-provider';
+import { ThemeContext, useLocalize, useAuthContext } from '~/hooks';
 import ArchivedChats from './ArchivedChats';
 import ToggleSwitch from '../ToggleSwitch';
 import { Dropdown } from '~/components';
@@ -121,6 +122,7 @@ export const LangSelector = ({
 
 function General() {
   const { theme, setTheme } = useContext(ThemeContext);
+  const { user } = useAuthContext();
 
   const [langcode, setLangcode] = useRecoilState(store.lang);
 
@@ -155,16 +157,24 @@ function General() {
       <div className="pb-3">
         <LangSelector langcode={langcode} onChange={changeLang} />
       </div>
-      {toggleSwitchConfigs.map((config) => (
-        <div key={config.key} className="pb-3">
-          <ToggleSwitch
-            stateAtom={config.stateAtom}
-            localizationKey={config.localizationKey}
-            hoverCardText={config.hoverCardText}
-            switchId={config.switchId}
-          />
-        </div>
-      ))}
+      {toggleSwitchConfigs
+        .filter((config) => {
+          // Hide side panel toggle for non-admin users
+          if (config.key === 'hideSidePanel' && user?.role !== SystemRoles.ADMIN) {
+            return false;
+          }
+          return true;
+        })
+        .map((config) => (
+          <div key={config.key} className="pb-3">
+            <ToggleSwitch
+              stateAtom={config.stateAtom}
+              localizationKey={config.localizationKey}
+              hoverCardText={config.hoverCardText}
+              switchId={config.switchId}
+            />
+          </div>
+        ))}
       <div className="pb-3">
         <ArchivedChats />
       </div>

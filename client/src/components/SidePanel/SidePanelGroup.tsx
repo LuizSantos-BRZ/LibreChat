@@ -1,12 +1,12 @@
 import { useState, useRef, useCallback, useEffect, useMemo, memo } from 'react';
 import throttle from 'lodash/throttle';
 import { useRecoilValue } from 'recoil';
-import { getConfigDefaults } from 'librechat-data-provider';
+import { getConfigDefaults, SystemRoles } from 'librechat-data-provider';
 import type { ImperativePanelHandle } from 'react-resizable-panels';
 import { ResizableHandleAlt, ResizablePanel, ResizablePanelGroup } from '~/components/ui/Resizable';
 import { useGetStartupConfig } from '~/data-provider';
 import { normalizeLayout } from '~/utils';
-import { useMediaQuery } from '~/hooks';
+import { useMediaQuery, useAuthContext } from '~/hooks';
 import SidePanel from './SidePanel';
 import store from '~/store';
 
@@ -31,10 +31,21 @@ const SidePanelGroup = ({
   children,
 }: SidePanelProps) => {
   const { data: startupConfig } = useGetStartupConfig();
-  const interfaceConfig = useMemo(
-    () => startupConfig?.interface ?? defaultInterface,
-    [startupConfig],
-  );
+  const { user } = useAuthContext();
+
+  const interfaceConfig = useMemo(() => {
+    const baseConfig = startupConfig?.interface ?? defaultInterface;
+
+    // Hide side panel for non-admin users
+    if (user?.role !== SystemRoles.ADMIN) {
+      return {
+        ...baseConfig,
+        sidePanel: false,
+      };
+    }
+
+    return baseConfig;
+  }, [startupConfig, user?.role]);
 
   const panelRef = useRef<ImperativePanelHandle>(null);
   const [minSize, setMinSize] = useState(defaultMinSize);
@@ -43,7 +54,15 @@ const SidePanelGroup = ({
   const [collapsedSize, setCollapsedSize] = useState(navCollapsedSize);
 
   const isSmallScreen = useMediaQuery('(max-width: 767px)');
-  const hideSidePanel = useRecoilValue(store.hideSidePanel);
+  const hideSidePanelSetting = useRecoilValue(store.hideSidePanel);
+
+  // Force hide side panel for non-admin users
+  const hideSidePanel = useMemo(() => {
+    if (user?.role !== SystemRoles.ADMIN) {
+      return true;
+    }
+    return hideSidePanelSetting;
+  }, [user?.role, hideSidePanelSetting]);
 
   const calculateLayout = useCallback(() => {
     if (artifacts == null) {
